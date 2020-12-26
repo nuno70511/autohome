@@ -8,8 +8,8 @@ const userSchema = new mongoose.Schema({
     pin: { type: Number },
     phoneList: {
         type: [{
-            model: String,
-            imei: String
+            model: { type: String },
+            imei: { type: String }
         }]
     }
 }, {
