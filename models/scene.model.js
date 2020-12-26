@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { ObjectId } = require("bson");
 
 const sceneSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -7,7 +6,7 @@ const sceneSchema = new mongoose.Schema({
     datetimeToFinish: { type: Date },
     devices: {
         type: [{
-            deviceId: { type: ObjectId },
+            deviceId: { type: mongoose.Schema.Types.ObjectId },
             stateOnStart: { type: Number, required: true, min: 0, max: 1 },
             valueOnStart: { type: Number },
             stateOnFinish: { type: Number, min: 0, max: 1 },

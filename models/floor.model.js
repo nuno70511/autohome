@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { ObjectId } = require("bson");
 
 const floorSchema = new mongoose.Schema({
     name: {
@@ -37,7 +36,7 @@ const floorSchema = new mongoose.Schema({
                 ],
                 required: true
             },
-            deviceIds: { type: [ObjectId] }
+            deviceIds: { type: [mongoose.Schema.Types.ObjectId] }
         }]
     }
 }, {
