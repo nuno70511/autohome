@@ -11,7 +11,9 @@ const userSchema = new mongoose.Schema({
             model: { type: String },
             imei: { type: String }
         }]
-    }
+    },
+    floorsIds: { type: [mongoose.Schema.Types.ObjectId] },
+    scenesIds: { type: [mongoose.Schema.Types.ObjectId] }
 }, {
     timestamps: true
 });
