@@ -36,7 +36,7 @@ const floorSchema = new mongoose.Schema({
                 ],
                 required: true
             },
-            deviceIds: { type: [mongoose.Schema.Types.ObjectId] }
+            devicesIds: { type: [mongoose.Schema.Types.ObjectId] }
         }]
     }
 }, {
