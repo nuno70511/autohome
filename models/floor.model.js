@@ -13,8 +13,8 @@ const floorSchema = new mongoose.Schema({
         ],
         required: true
     },
-    spaces: {
-        type: [{
+    spaces: [{
+        type: {
             name: { type: String, required: true },
             type: {
                 type: String,
@@ -36,9 +36,9 @@ const floorSchema = new mongoose.Schema({
                 ],
                 required: true
             },
-            devicesIds: { type: [mongoose.Schema.Types.ObjectId] }
-        }]
-    }
+            devicesIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "device" }]
+        }
+    }]
 }, {
     timestamps: true
 });

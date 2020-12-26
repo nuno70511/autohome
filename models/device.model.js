@@ -20,12 +20,12 @@ const deviceSchema = new mongoose.Schema({
         required: true
     },
     isFavorite: { type: Boolean, required: true, default: false },
-    readings: {
-        type: [{
+    readings: [{
+        type: {
             datetime: { type: Date },
             value: { type: Number }
-        }]
-    }
+        }
+    }]
 }, {
     timestamps: true
 });
