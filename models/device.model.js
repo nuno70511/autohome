@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const deviceSchema = new mongoose.Schema({
     name: { type: String, required: true },
     state: { type: Number, required: true, min: 0, max: 1, default: 0 },
-    value: { type: Number },
+    temperature: { type: Number },
     type: {
         type: String,
         enum: [
@@ -25,7 +25,18 @@ const deviceSchema = new mongoose.Schema({
             datetime: { type: Date },
             value: { type: Number }
         }
-    }]
+    }],
+    priority: {
+        type: String,
+        enum: [
+            "A",
+            "B",
+            "C"
+        ],
+        required: true,
+        default: "B"
+    },
+    maxPowerDraw: { type: Number, required: true, min: 0 }
 }, {
     timestamps: true
 });
