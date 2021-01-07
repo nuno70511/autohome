@@ -7,10 +7,8 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     pin: { type: Number },
     phoneList: [{
-        type: {
-            model: { type: String },
-            imei: { type: String, unique: true }
-        }
+        model: { type: String },
+        imei: { type: String, unique: true }
     }],
     floors: [{ type: mongoose.Schema.Types.ObjectId, ref: "floor" }],
     scenes: [{ type: mongoose.Schema.Types.ObjectId, ref: "scene" }]

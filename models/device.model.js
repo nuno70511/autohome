@@ -21,10 +21,8 @@ const deviceSchema = new mongoose.Schema({
     },
     isFavorite: { type: Boolean, required: true, default: false },
     readings: [{
-        type: {
-            datetime: { type: Date },
-            value: { type: Number }
-        }
+        datetime: { type: Date },
+        value: { type: Number }
     }]
 }, {
     timestamps: true
