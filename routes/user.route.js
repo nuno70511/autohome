@@ -19,4 +19,8 @@ router.delete("/:userId", (req, res, next) => {
     controller.deleteOneById(req, res, next);
 });
 
+router.patch("/:userId/updatePassword", (req, res, next) => {
+    controller.updatePassword(req, res, next);
+});
+
 module.exports = router;
