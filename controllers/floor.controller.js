@@ -47,16 +47,7 @@ const deleteOneById = async (req, res, next) => {
         next(err);
     }
 }
-/*
-const naoseioqporaqui = async (req,res,next) => {
-    try {
-        await Floor.updateOne();
-    }
-    catch (err) {
-        next(err);
-    }
-}
-*/
+
 module.exports = {
     createOne,
     findAll,
