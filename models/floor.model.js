@@ -14,30 +14,28 @@ const floorSchema = new mongoose.Schema({
         required: true
     },
     spaces: [{
+        name: { type: String, required: true },
         type: {
-            name: { type: String, required: true },
-            type: {
-                type: String,
-                enum: [
-                    "Back Yard",
-                    "Bathroom",
-                    "Bedroom",
-                    "Dining Room",
-                    "Front Yard",
-                    "Garage",
-                    "Garden",
-                    "Hallway",
-                    "Kitchen",
-                    "Laundry Room",
-                    "Living Room",
-                    "Office",
-                    "Pantry",
-                    "Roof"
-                ],
-                required: true
-            },
-            devices: [{ type: mongoose.Schema.Types.ObjectId, ref: "device" }]
-        }
+            type: String,
+            enum: [
+                "Back Yard",
+                "Bathroom",
+                "Bedroom",
+                "Dining Room",
+                "Front Yard",
+                "Garage",
+                "Garden",
+                "Hallway",
+                "Kitchen",
+                "Laundry Room",
+                "Living Room",
+                "Office",
+                "Pantry",
+                "Roof"
+            ],
+            required: true
+        },
+        devices: [{ type: mongoose.Schema.Types.ObjectId, ref: "device" }]
     }]
 }, {
     timestamps: true
