@@ -2,14 +2,15 @@ const express = require("express");
 const controller = require("../controllers/scene.controller");
 const { body, param } = require("express-validator");
 const validationResultHandler = require("../middleware/validationResultHandler");
+const verifyToken = require("../middleware/verifyJwt");
 
 const router = express.Router();
 
-router.get("/", (req, res, next) => {
+router.get("/", verifyToken,(req, res, next) => {
     controller.findAllScenes(req, res, next);
 });
 
-router.post("/", [
+router.post("/", verifyToken, [
     body("name")
         .exists()
         .withMessage("Missing required field 'name'")
@@ -24,7 +25,7 @@ router.post("/", [
     controller.createScene(req, res, next);
 });
 
-router.get("/:sceneId", [
+router.get("/:sceneId", verifyToken, [
     param("sceneId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'sceneId' is invalid")
@@ -32,7 +33,7 @@ router.get("/:sceneId", [
     controller.findSceneById(req, res, next);
 });
 
-router.patch("/:sceneId", [
+router.patch("/:sceneId", verifyToken, [
     param("sceneId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'sceneId' is invalid"),
@@ -52,7 +53,7 @@ router.patch("/:sceneId", [
     controller.updateSceneById(req, res, next);
 });
 
-router.delete("/:sceneId", [
+router.delete("/:sceneId", verifyToken, [
     param("sceneId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'sceneId' is invalid")
@@ -60,7 +61,7 @@ router.delete("/:sceneId", [
     controller.deleteSceneById(req, res, next);
 });
 
-router.post("/:sceneId/devices", [
+router.post("/:sceneId/devices", verifyToken, [
     param("sceneId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'sceneId' is invalid"),
@@ -90,7 +91,7 @@ router.post("/:sceneId/devices", [
     controller.scheduleActivity(req, res, next);
 });
 
-router.patch("/:sceneId/devices/:deviceId", [
+router.patch("/:sceneId/devices/:deviceId", verifyToken, [
     param("sceneId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'sceneId' is invalid"),
@@ -118,7 +119,7 @@ router.patch("/:sceneId/devices/:deviceId", [
     controller.updateActivity(req, res, next);
 });
 
-router.delete("/:sceneId/devices/:deviceId", [
+router.delete("/:sceneId/devices/:deviceId", verifyToken, [
     param("sceneId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'sceneId' is invalid"),
