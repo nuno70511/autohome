@@ -2,14 +2,15 @@ const express = require("express");
 const controller = require("../controllers/device.controller");
 const { body, param } = require("express-validator");
 const validationResultHandler = require("../middleware/validationResultHandler");
+const verifyToken = require("../middleware/verifyJwt");
 
 const router = express.Router();
 
-router.get("/", (req, res, next) => {
+router.get("/", verifyToken, (req, res, next) => {
     controller.findAllDevices(req, res, next);
 });
 
-router.post("/", [
+router.post("/", verifyToken, [
     body("name")
         .exists()
         .withMessage("Missing required field 'name'")
@@ -31,7 +32,7 @@ router.post("/", [
     controller.createDevice(req, res, next);
 });
 
-router.get("/:deviceId", [
+router.get("/:deviceId", verifyToken, [
     param("deviceId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'deviceId' is invalid")
@@ -39,7 +40,7 @@ router.get("/:deviceId", [
     controller.findDeviceById(req, res, next);
 });
 
-router.patch("/:deviceId", [
+router.patch("/:deviceId", verifyToken, [
     param("deviceId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'deviceId' is invalid"),
@@ -74,7 +75,7 @@ router.patch("/:deviceId", [
     controller.updateDeviceById(req, res, next);
 });
 
-router.delete("/:deviceId", [
+router.delete("/:deviceId", verifyToken, [
     param("deviceId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'deviceId' is invalid")
@@ -82,7 +83,7 @@ router.delete("/:deviceId", [
     controller.deleteDeviceById(req, res, next);
 });
 
-router.post("/:deviceId/readings", [
+router.post("/:deviceId/readings", verifyToken, [
     param("deviceId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'deviceId' is invalid"),
