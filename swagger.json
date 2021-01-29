@@ -1,0 +1,1724 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "AutoHome API",
+        "description": "AutoHome is an Android application for controlling smart home devices using the `MQTT` protocol. This API bridges with the front-end of the application, allowing data persistency, authentication methods and more advanced functionality, such as organization and automation of devices, as well as insights into energy consumption practices.",
+        "version": "0.1.0"
+    },
+    "servers": [
+        {
+            "url": "https://esmapp-vintevinteum-autohome.herokuapp.com/",
+            "description": "Production server"
+        }
+    ],
+    "components": {
+        "schemas": {
+            "User": {
+                "type": "object",
+                "properties": {
+                    "_id": {
+                        "type": "string",
+                        "format": "object-id",
+                        "pattern": "/^[0-9a-fA-F]{24}$/",
+                        "readOnly": "true"
+                    },
+                    "givenName": {
+                        "type": "string"
+                    }, 
+                    "familyName": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "writeOnly": "true"
+                    },
+                    "pin": {
+                        "type": "integer",
+                        "minimum": 1000,
+                        "maximum": 9999
+                    },
+                    "phoneList": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "model": {
+                                    "type": "string"
+                                },
+                                "imei": {
+                                    "type": "string",
+                                    "format": "imei"
+                                }
+                            },
+                            "required": [
+                                "imei"
+                            ]
+                        }
+                    },
+                    "contractedPower": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "floors": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "object-id",
+                            "pattern": "/^[0-9a-fA-F]{24}$/",
+                            "readOnly": "true"
+                        }
+                    },
+                    "scenes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "object-id",
+                            "pattern": "/^[0-9a-fA-F]{24}$/",
+                            "readOnly": "true"
+                        }
+                    }
+                },
+                "required": [
+                    "_id",
+                    "givenName",
+                    "familyName",
+                    "email",
+                    "password"
+                ]
+            },
+            "Device": {
+                "type": "object",
+                "properties": {
+                    "_id": {
+                        "type": "string",
+                        "format": "object-id",
+                        "pattern": "/^[0-9a-fA-F]{24}$/",
+                        "readOnly": "true"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "state": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 1
+                    },
+                    "temperature": {
+                        "type": "integer"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "Air Conditioning",
+                            "Blind",
+                            "Boiler",
+                            "Eletric Gate",
+                            "Eletric Lock",
+                            "EV Charging Station",
+                            "Light",
+                            "Radiator",
+                            "Solar Panel"
+                        ]
+                    },
+                    "isFavorite": {
+                        "type": "boolean"
+                    },
+                    "readings": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "datetime": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                "value": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "priority": {
+                        "type": "string",
+                        "enum": [
+                            "A",
+                            "B",
+                            "C"
+                        ]
+                    },
+                    "maxPowerDraw": {
+                        "type": "integer",
+                        "minimum": 0
+                    }
+                },
+                "required": [
+                    "_id",
+                    "name",
+                    "state",
+                    "type",
+                    "isFavorite",
+                    "priority",
+                    "maxPowerDraw"
+                ]
+            },
+            "Floor": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "enum": [
+                            "Attic",
+                            "Basement",
+                            "First Floor",
+                            "Ground Floor",
+                            "Outdoors",
+                            "Second Floor"
+                        ]
+                    },
+                    "spaces": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "Back Yard",
+                                        "Bathroom",
+                                        "Bedroom",
+                                        "Dining Room",
+                                        "Front Yard",
+                                        "Garage",
+                                        "Garden",
+                                        "Hallway",
+                                        "Kitchen",
+                                        "Laundry Room",
+                                        "Living Room",
+                                        "Office",
+                                        "Pantry",
+                                        "Roof"
+                                    ]
+                                },
+                                "devices": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "format": "object-id",
+                                        "pattern": "/^[0-9a-fA-F]{24}$/",
+                                        "readOnly": "true"
+                                    }
+                                }
+                            },
+                            "required": [
+                                "name",
+                                "type"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            },
+            "Scenes": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "datetimeToStart": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "datetimeToFinish": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "devices": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "_id": {
+                                    "type": "string",
+                                    "format": "object-id",
+                                    "pattern": "/^[0-9a-fA-F]{24}$/",
+                                    "readOnly": "true"
+                                },
+                                "stateOnStart": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 1
+                                },
+                                "valueOnStart": {
+                                    "type": "integer"
+                                },
+                                "stateOnFinish": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 1
+                                },
+                                "valueOnFinish": {
+                                    "type": "integer"
+                                }
+                            },
+                            "required": [
+                                "_id",
+                                "stateOnStart"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "datetimeToStart"
+                ]
+            }
+        },
+        "parameters": {
+            "userParam": {
+                "name": "userId",
+                "in": "path",
+                "description": "the identifier of the user",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "format": "object-id",
+                    "pattern": "/^[0-9a-fA-F]{24}$/",
+                    "readOnly": "true"
+                }
+            },
+            "deviceParam": {
+                "name": "deviceId",
+                "in": "path",
+                "description": "the identifier of the device",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "format": "object-id",
+                    "pattern": "/^[0-9a-fA-F]{24}$/",
+                    "readOnly": "true"
+                }
+            },
+            "floorParam": {
+                "name": "floorId",
+                "in": "path",
+                "description": "the identifier of the floor",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "format": "object-id",
+                    "pattern": "/^[0-9a-fA-F]{24}$/",
+                    "readOnly": "true"
+                }
+            },
+            "spaceParam": {
+                "name": "spaceId",
+                "in": "path",
+                "description": "the identifier of the space",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "format": "object-id",
+                    "pattern": "/^[0-9a-fA-F]{24}$/",
+                    "readOnly": "true"
+                }
+            },
+            "sceneParam": {
+                "name": "sceneId",
+                "in": "path",
+                "description": "the identifier of the scene",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "format": "object-id",
+                    "pattern": "/^[0-9a-fA-F]{24}$/",
+                    "readOnly": "true"
+                }
+            }
+        },
+        "securitySchemes": {
+            "JWT": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "paths": {
+        "/auth/signup": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "description": "Create a new account",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "givenName": {
+                                        "type": "string"
+                                    }, 
+                                    "familyName": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "writeOnly": "true"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Account created successfully"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/auth/signin": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "description": "Authenticate a user",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "writeOnly": "true"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User authenticated successfully"
+                    },
+                    "401": {
+                        "description": "Email or password are incorrect"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "description": "Find all users",
+                "responses": {
+                    "200": {
+                        "description": "The list of all the users from the system",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/User"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/users/:userId": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/userParam"
+                    }
+                ],
+                "description": "Find a user by their id",
+                "responses": {
+                    "200": {
+                        "description": "The requested user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Incorrect userId, or the user no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/userParam"
+                    }
+                ],
+                "description": "Update one or more of: givenName, familyName, pin, contractedPower; by the user's id",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "givenName": {
+                                        "type": "string"
+                                    }, 
+                                    "familyName": {
+                                        "type": "string"
+                                    },
+                                    "pin": {
+                                        "type": "integer",
+                                        "minimum": 1000,
+                                        "maximum": 9999
+                                    },
+                                    "contractedPower": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "User updated successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect userId, or the user no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/userParam"
+                    }
+                ],
+                "description": "Delete a user by their id",
+                "responses": {
+                    "204": {
+                        "description": "User deleted successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect userId, or the user no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/users/:userId/phones": {
+            "post": {
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/userParam"
+                    }
+                ],
+                "description": "Connect a phone to a user",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "model": {
+                                        "type": "string"
+                                    },
+                                    "imei": {
+                                        "type": "string",
+                                        "format": "imei"
+                                    }
+                                },
+                                "required": [
+                                    "imei"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Phone connected successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect userId, or the user no longer exists"
+                    },
+                    "409": {
+                        "description": "Repeated IMEI"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/users/:userId/phones/:imei": {
+            "delete": {
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/userParam"
+                    },
+                    {
+                        "name": "imei",
+                        "in": "path",
+                        "description": "the phone's IMEI",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "format"
+                        }
+                    }
+                ],
+                "description": "Disconnect a phone from the user",
+                "responses": {
+                    "204": {
+                        "description": "Phone disconnected successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect userId, IMEI, or either the user or phone no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/users/:userId/floors": {
+            "post": {
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/userParam"
+                    }
+                ],
+                "description": "Link floor to a user",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "floorId": {
+                                        "type": "string",
+                                        "format": "object-id",
+                                        "pattern": "/^[0-9a-fA-F]{24}$/"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Floor linked successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect userId, floorId, or either the user or floor no longer exists"
+                    },
+                    "409": {
+                        "description": "Repeated floorId"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/users/:userId/floors/:floorId": {
+            "delete": {
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/userParam"
+                    }
+                ],
+                "description": "Unlink floor from a user",
+                "responses": {
+                    "204": {
+                        "description": "Floor unlinked successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect userId, floorId, or either the user or floor no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/users/:userId/scenes": {
+            "post": {
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/userParam"
+                    }
+                ],
+                "description": "Link scene to a user",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "sceneId": {
+                                        "type": "string",
+                                        "format": "object-id",
+                                        "pattern": "/^[0-9a-fA-F]{24}$/"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Scene linked successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect userId, sceneId, or either the user or scene no longer exists"
+                    },
+                    "409": {
+                        "description": "Repeated sceneId"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/users/:userId/scenes/:sceneId": {
+            "delete": {
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/userParam"
+                    }
+                ],
+                "description": "Unlink scene from a user",
+                "responses": {
+                    "204": {
+                        "description": "Scene unlinked successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect userId, sceneId, or either the user or scene no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/users/:userId/updatePassword": {
+            "patch": {
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/userParam"
+                    }
+                ],
+                "description": "Update the user's password",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "writeOnly": "true"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Password updated successfully"
+                    },
+                    "401": {
+                        "description": "Failed to authenticate the user"
+                    },
+                    "404": {
+                        "description": "Incorrect userId, or the user no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/devices": {
+            "post": {
+                "tags": [
+                    "device"
+                ],
+                "description": "Create a new device",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Air Conditioning",
+                                            "Blind",
+                                            "Boiler",
+                                            "Eletric Gate",
+                                            "Eletric Lock",
+                                            "EV Charging Station",
+                                            "Light",
+                                            "Radiator",
+                                            "Solar Panel"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Device created successfully"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "device"
+                ],
+                "description": "Find all devices",
+                "responses": {
+                    "200": {
+                        "description": "The list of all the devices from the system",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Device"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/devices/:deviceId": {
+            "get": {
+                "tags": [
+                    "device"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/deviceParam"
+                    }
+                ],
+                "description": "Find a device by its id",
+                "responses": {
+                    "200": {
+                        "description": "The requested device",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "$ref": "#/components/schemas/Device"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Incorrect deviceId, or the device no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "device"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/deviceParam"
+                    }
+                ],
+                "description": "Update one or more of: name, state, temperature, isFavorite, priority, maxPowerDraw; by the device's id",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "state": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 1
+                                    },
+                                    "temperature": {
+                                        "type": "integer"
+                                    },
+                                    "isFavorite": {
+                                        "type": "boolean"
+                                    },
+                                    "priority": {
+                                        "type": "string",
+                                        "enum": [
+                                            "A",
+                                            "B",
+                                            "C"
+                                        ]
+                                    },
+                                    "maxPowerDraw": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Device updated successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect deviceId, or the device no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "device"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/deviceParam"
+                    }
+                ],
+                "description": "Delete a device by its id",
+                "responses": {
+                    "204": {
+                        "description": "Device deleted successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect deviceId, or the device no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/devices/:deviceId/readings": {
+            "post": {
+                "tags": [
+                    "device"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/deviceParam"
+                    }
+                ],
+                "description": "Create a new reading of the device's energy consumption",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "datetime": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "value": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Reading created successfully"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/floors": {
+            "post": {
+                "tags": [
+                    "floor"
+                ],
+                "description": "Create a new floor",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Attic",
+                                            "Basement",
+                                            "First Floor",
+                                            "Ground Floor",
+                                            "Outdoors",
+                                            "Second Floor"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Floor created successfully"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "floor"
+                ],
+                "description": "Find all floors",
+                "responses": {
+                    "200": {
+                        "description": "The list of all the floors from the system",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Floor"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/floors/:floorId": {
+            "get": {
+                "tags": [
+                    "floor"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/floorParam"
+                    }
+                ],
+                "description": "Find a floor by its id",
+                "responses": {
+                    "200": {
+                        "description": "The requested floor",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "$ref": "#/components/schemas/Floor"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Incorrect floorId, or the floor no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "floor"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/floorParam"
+                    }
+                ],
+                "description": "Delete a floor by its id",
+                "responses": {
+                    "204": {
+                        "description": "Floor deleted successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect floorId, or the floor no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/floors/:floorId/spaces": {
+            "post": {
+                "tags": [
+                    "floor"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/floorParam"
+                    }
+                ],
+                "description": "Create a new space",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Back Yard",
+                                            "Bathroom",
+                                            "Bedroom",
+                                            "Dining Room",
+                                            "Front Yard",
+                                            "Garage",
+                                            "Garden",
+                                            "Hallway",
+                                            "Kitchen",
+                                            "Laundry Room",
+                                            "Living Room",
+                                            "Office",
+                                            "Pantry",
+                                            "Roof"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Space created successfully"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/floors/:floorId/spaces/:spaceId": {
+            "get": {
+                "tags": [
+                    "floor"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/floorParam"
+                    },
+                    {
+                        "$ref": "#/components/parameters/spaceParam"
+                    }
+                ],
+                "description": "Find a space by its id and the parent floor id",
+                "responses": {
+                    "200": {
+                        "description": "The requested space",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Back Yard",
+                                                "Bathroom",
+                                                "Bedroom",
+                                                "Dining Room",
+                                                "Front Yard",
+                                                "Garage",
+                                                "Garden",
+                                                "Hallway",
+                                                "Kitchen",
+                                                "Laundry Room",
+                                                "Living Room",
+                                                "Office",
+                                                "Pantry",
+                                                "Roof"
+                                            ]
+                                        },
+                                        "devices": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "format": "object-id",
+                                                "pattern": "/^[0-9a-fA-F]{24}$/",
+                                                "readOnly": "true"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Incorrect floorId, spaceId, or either the floor or the space no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "floor"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/floorParam"
+                    },
+                    {
+                        "$ref": "#/components/parameters/spaceParam"
+                    }
+                ],
+                "description": "Update the name and type of a space by the floor and space's ids",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Back Yard",
+                                            "Bathroom",
+                                            "Bedroom",
+                                            "Dining Room",
+                                            "Front Yard",
+                                            "Garage",
+                                            "Garden",
+                                            "Hallway",
+                                            "Kitchen",
+                                            "Laundry Room",
+                                            "Living Room",
+                                            "Office",
+                                            "Pantry",
+                                            "Roof"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Space updated successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect floorId, spaceId or either the floor or space no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "floor"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/floorParam"
+                    },
+                    {
+                        "$ref": "#/components/parameters/spaceParam"
+                    }
+                ],
+                "description": "Delete a space by its id",
+                "responses": {
+                    "204": {
+                        "description": "Space deleted successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect floorId, spaceId, or either the floor or the space no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/floors/:floorId/spaces/:spaceId/devices": {
+            "post": {
+                "tags": [
+                    "floor"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/floorParam"
+                    },
+                    {
+                        "$ref": "#/components/parameters/spaceParam"
+                    }
+                ],
+                "description": "Link a device to a space",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "deviceId": {
+                                        "type": "string",
+                                        "format": "object-id",
+                                        "pattern": "/^[0-9a-fA-F]{24}$/"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Device linked successfully"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/floors/:floorId/spaces/:spaceId/devices/:deviceId": {
+            "delete": {
+                "tags": [
+                    "floor"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/floorParam"
+                    },
+                    {
+                        "$ref": "#/components/parameters/spaceParam"
+                    },
+                    {
+                        "$ref": "#/components/parameters/deviceParam"
+                    }
+                ],
+                "description": "Unlink a device from a space by its id and the parent space and floor's id",
+                "responses": {
+                    "204": {
+                        "description": "Device unlinked successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect floorId, spaceId, deviceId, or the floor, space or device no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/scenes": {
+            "post": {
+                "tags": [
+                    "scene"
+                ],
+                "description": "Create a new scene",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "datetimeToStart": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    } 
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Scene created successfully"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "scene"
+                ],
+                "description": "Find all scenes",
+                "responses": {
+                    "200": {
+                        "description": "The list of all the scenes from the system",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Scene"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/scenes/:sceneId": {
+            "get": {
+                "tags": [
+                    "scene"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/sceneParam"
+                    }
+                ],
+                "description": "Find a scene by its id",
+                "responses": {
+                    "200": {
+                        "description": "The requested scene",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "$ref": "#/components/schemas/Scene"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Incorrect sceneId, or the scene no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "scene"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/sceneParam"
+                    }
+                ],
+                "description": "Update one or more of: name, datetimeToStart, datetimeToFinish; by the scenes' id",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "datetimeToStart": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "datetimeToFinish": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Scene updated successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect sceneId, or the scene no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "scene"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/sceneParam"
+                    }
+                ],
+                "description": "Delete a scene by its id",
+                "responses": {
+                    "204": {
+                        "description": "Scene deleted successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect sceneId, or the scene no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/scenes/:sceneId/devices": {
+            "post": {
+                "tags": [
+                    "scene"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/sceneParam"
+                    }
+                ],
+                "description": "Link a device to a scene",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "_id": {
+                                        "type": "string",
+                                        "format": "object-id",
+                                        "pattern": "/^[0-9a-fA-F]{24}$/"
+                                    },
+                                    "stateOnStart": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 1
+                                    },
+                                    "valueOnStart": {
+                                        "type": "integer"
+                                    },
+                                    "stateOnFinish": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 1
+                                    },
+                                    "valueOnFinish": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Linked device successfully"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/scenes/:sceneId/devices/:deviceId": {
+            "patch": {
+                "tags": [
+                    "scene"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/sceneParam"
+                    },
+                    {
+                        "$ref": "#/components/parameters/deviceParam"
+                    }
+                ],
+                "description": "Update by one or more of: stateOnStart, valueOnStart, stateOnFinish, valueOnFinish; by the scene and device's ids",
+                "requestBody": {
+                    "content": {
+                        "application/json" : {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "stateOnStart": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 1
+                                    },
+                                    "valueOnStart": {
+                                        "type": "integer"
+                                    },
+                                    "stateOnFinish": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 1
+                                    },
+                                    "valueOnFinish": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Updated successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect sceneId, deviceId or either the scene or device no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "scene"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/sceneParam"
+                    },
+                    {
+                        "$ref": "#/components/parameters/deviceParam"
+                    }
+                ],
+                "description": "Unlink a device from a scene by its id",
+                "responses": {
+                    "204": {
+                        "description": "Device unlinked successfully"
+                    },
+                    "404": {
+                        "description": "Incorrect sceneId, deviceId, or either the scene or the device no longer exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        }
+    }
+}

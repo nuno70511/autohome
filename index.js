@@ -6,6 +6,9 @@ const mongoose = require("mongoose");
 const app = express();
 const port = process.env.PORT || 3000;
 
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
+
 app.use(express.json());
 
 app.use("/auth", require("./routes/auth.route"));
@@ -13,6 +16,7 @@ app.use("/devices", require("./routes/device.route"));
 app.use("/floors", require("./routes/floor.route"));
 app.use("/scenes", require("./routes/scene.route"));
 app.use("/users", require("./routes/user.route"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use((err, req, res, next) => {
     res.status(err.status || 500).json(err);
