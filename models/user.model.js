@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
         model: { type: String },
         imei: { type: String, unique: true }
     }],
-    contractedPower: { type: Number, required: true, min: 0 },
+    contractedPower: { type: Number, min: 0 },
     floors: [{ type: mongoose.Schema.Types.ObjectId, ref: "floor" }],
     scenes: [{ type: mongoose.Schema.Types.ObjectId, ref: "scene" }]
 }, {
