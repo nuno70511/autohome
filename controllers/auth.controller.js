@@ -1,4 +1,5 @@
 const User = require("../models/user.model");
+const { authorizationError } = require("../util/errorObjects");
 const jwt = require("jsonwebtoken");
 
 const signup = async (req, res, next) => {
@@ -20,6 +21,9 @@ const signup = async (req, res, next) => {
 const signin = async (req, res, next) => {
     try {
         const user = await User.findOne({ email: req.body.email }, "password").exec();
+        if (!user)
+            next(authorizationError());
+
         const storedHash = user.password;
 
         const hashFromRequest = await bcrypt.hash(req.body.password, saltRounds);
@@ -31,7 +35,7 @@ const signin = async (req, res, next) => {
             res.status(200).json({ token });
         }
         else {
-            res.status(401).end();
+            next(authorizationError());
         }
     }
     catch (err) {
