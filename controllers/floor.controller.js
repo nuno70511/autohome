@@ -129,7 +129,12 @@ const addDeviceToSpace = async (req, res, next) => {
         if (spaceIndex === -1)
             next(idNotFoundError("space"));
 
-        floor.spaces[spaceIndex].devices.push(req.body.deviceId);
+        const deviceList = floor.spaces[spaceIndex].devices;
+        if (deviceList.find(d => d._id === req.body.device)){
+            next(conflictError("device", "deviceId"));
+        }
+        
+        deviceList.push(req.body.deviceId);
         await floor.save();
 
         res.status(204).end();

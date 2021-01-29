@@ -27,7 +27,7 @@ router.post("/", [
 
 router.get("/:floorId", [
     param("floorId")
-        .isAlphanumeric()
+        .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'id' is invalid")
 ], validationResultHandler, (req, res, next) => {
     controller.findFloorById(req, res, next);
@@ -35,7 +35,7 @@ router.get("/:floorId", [
 
 router.delete("/:floorId", [
     param("floorId")
-        .isAlphanumeric()
+        .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'id' is invalid")
 ], validationResultHandler, (req, res, next) => {
     controller.deleteFloorById(req, res, next);
@@ -43,7 +43,7 @@ router.delete("/:floorId", [
 
 router.post("/:floorId/spaces", [
     param("floorId")
-        .isAlphanumeric()
+        .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'floorId' is invalid"),
     body("name")
         .exists()
@@ -75,10 +75,10 @@ router.post("/:floorId/spaces", [
 
 router.put("/:floorId/spaces/:spaceId", [
     param("floorId")
-        .isAlphanumeric()
+        .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'floorId' is invalid"),
     param("spaceId")
-        .isAlphanumeric()
+        .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'spaceId' is invalid"),
     body("name")
         .exists()
@@ -110,10 +110,10 @@ router.put("/:floorId/spaces/:spaceId", [
 
 router.delete("/:floorId/spaces/:spaceId", [
     param("floorId")
-        .isAlphanumeric()
+        .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'floorId' is invalid"),
     param("spaceId")
-        .isAlphanumeric()
+        .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'spaceId' is invalid")
 ], validationResultHandler, (req, res, next) => {
     controller.deleteSpaceById(req, res, next);
@@ -121,13 +121,13 @@ router.delete("/:floorId/spaces/:spaceId", [
 
 router.put("/:floorId/spaces/:spaceId/devices", [
     param("floorId")
-        .isAlphanumeric()
+        .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'floorId' is invalid"),
     param("spaceId")
-        .isAlphanumeric()
+        .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'spaceId' is invalid"),
     body("deviceId")
-        .isAlphanumeric()
+        .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Field 'deviceId' is invalid")
 ], validationResultHandler, (req, res, next) => {
     controller.addDeviceToSpace(req, res, next);
@@ -135,13 +135,13 @@ router.put("/:floorId/spaces/:spaceId/devices", [
 
 router.put("/:floorId/spaces/:spaceId/devices/:deviceId", [
     param("floorId")
-        .isAlphanumeric()
+        .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'floorId' is invalid"),
     param("spaceId")
-        .isAlphanumeric()
+        .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'spaceId' is invalid"),
     param("deviceId")
-        .isAlphanumeric()
+        .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'deviceId' is invalid")
 ], validationResultHandler, (req, res, next) => {
     controller.removeDeviceFromSpace(req, res, next);
