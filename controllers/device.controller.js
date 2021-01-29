@@ -1,8 +1,9 @@
 const Device = require("../models/device.model");
+const { idNotFoundError } = require("../util/errorObjects");
 
-const projection = "_id name state value type isFavorite readings";
+const projection = "_id name state temperature type isFavorite readings priority maxPowerDraw";
 
-const createOne = async (req, res, next) => {
+const createDevice = async (req, res, next) => {
     try {
         await Device.create({
             name: req.body.name,
@@ -16,7 +17,7 @@ const createOne = async (req, res, next) => {
     }
 }
 
-const findAll = async (req, res, next) => {
+const findAllDevices = async (req, res, next) => {
     try {
         const devices = await Device.find({}, projection);
 
@@ -27,20 +28,34 @@ const findAll = async (req, res, next) => {
     }
 }
 
-const findOneById = async (req, res, next) => {
+const findDeviceById = async (req, res, next) => {
     try {
-        const device = await Device.findById(req.params.id, projection).exec();
+        const device = await Device.findById(req.params.deviceId, projection).exec();
+        if (!device)
+            next(idNotFoundError("device"));
 
         res.status(200).json(device);
     }
     catch (err) {
+        console.log(err)
         next(err);
     }
 }
 
-const updateOneById = async (req, res, next) => {
+const updateDeviceById = async (req, res, next) => {
     try {
-        await Device.findByIdAndUpdate(req.params.id, { name: req.body.name }).exec();
+        const device = await Device.findById(req.params.deviceId).exec();
+        if (!device)
+            next(idNotFoundError("device"));
+        
+        await Device.findByIdAndUpdate(req.params.deviceId, {
+            ...req.body.name            && { name: req.body.name                },
+            ...req.body.state           && { state: req.body.state              },
+            ...req.body.temperature     && { temperature: req.body.temperature  },
+            ...req.body.isFavorite      && { isFavorite: req.body.isFavorite    },
+            ...req.body.priority        && { priority: req.body.priority        },
+            ...req.body.maxPowerDraw    && { maxPowerDraw: req.body.maxPowerDraw}
+        }).exec();
 
         res.status(204).end();
     }
@@ -49,11 +64,32 @@ const updateOneById = async (req, res, next) => {
     }
 }
 
-const deleteOneById = async (req, res, next) => {
+const deleteDeviceById = async (req, res, next) => {
     try {
-        await Device.findByIdAndDelete(req.params.id).exec();
+        const device = await Device.findByIdAndDelete(req.params.deviceId).exec();
+        if (!device)
+            next(idNotFoundError("device"));
 
         res.status(204).end();
+    }
+    catch (err) {
+        next(err);
+    }
+}
+
+const addReading = async (req, res, next) => {
+    try {
+        const device = await Device.findById(req.params.deviceId).exec();
+        if (!device)
+            next(idNotFoundError("device"));
+
+        device.readings.push({
+            datetime: req.body.datetime,
+            value: req.body.value
+        });
+        await device.save();
+
+        res.status(201).end();
     }
     catch (err) {
         next(err);
@@ -61,9 +97,10 @@ const deleteOneById = async (req, res, next) => {
 }
 
 module.exports = {
-    createOne,
-    findAll,
-    findOneById,
-    updateOneById,
-    deleteOneById
+    createDevice,
+    findAllDevices,
+    findDeviceById,
+    updateDeviceById,
+    deleteDeviceById,
+    addReading
 }
