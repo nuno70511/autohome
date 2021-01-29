@@ -6,17 +6,35 @@ const idNotFoundError = (resource) => {
     }
 }
 
-const conflictError = (resourceName, field) => {
+const resourceNotFoundError = (resource) => {
+    return {
+        status: 404,
+        title: `${capitalize(resource)} not found`,
+        detail: `'${capitalize(resource)}' is incorrect, or it no longer exists`
+    }
+}
+
+const conflictError = (resource, field) => {
     return {
         status: 409,
-        title: `${capitalize(resourceName)} conflicts with an existing resource`,
+        title: `${capitalize(resource)} conflicts with an existing resource`,
         detail: `Unique field '${field}' is already in use`
+    }
+}
+
+const authorizationError = () => {
+    return {
+        status: 401,
+        title: `Authentication fail`,
+        detail: `The email or password are invalid`
     }
 }
 
 module.exports = {
     idNotFoundError,
-    conflictError
+    resourceNotFoundError,
+    conflictError,
+    authorizationError
 };
 
 const capitalize = str => str[0].toUpperCase() + str.substring(1, str.length).toLowerCase();

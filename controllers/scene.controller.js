@@ -135,8 +135,7 @@ const cancelActivity = async (req, res, next) => {
         if (!scene)
             next(idNotFoundError("scene"));
 
-        const deviceIndex = scene.devices.findIndex(d => d._id === req.params.deviceId);
-        if (deviceIndex === -1)
+        if (!scene.devices.find(d => d._id === req.params.deviceId))
             next(idNotFoundError("device"))
 
         scene.devices = scene.devices.filter(d => d._id !== req.params.device);
