@@ -2,21 +2,22 @@ const express = require("express");
 const controller = require("../controllers/user.controller");
 const { body, param } = require("express-validator");
 const validationResultHandler = require("../middleware/validationResultHandler");
+const verifyToken = require("../middleware/verifyJwt");
 
 const router = express.Router();
 
-router.get("/", (req, res, next) => {
+router.get("/", verifyToken, (req, res, next) => {
     controller.findAllUsers(req, res, next);
 });
 
-router.get("/:userId", (req, res, next) => {
+router.get("/:userId", verifyToken, (req, res, next) => {
     param("userId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'userId' is invalid")
     controller.findUserById(req, res, next);
 });
 
-router.patch("/:userId", [
+router.patch("/:userId", verifyToken, [
     param("userId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'userId' is invalid"),
@@ -39,7 +40,7 @@ router.patch("/:userId", [
     controller.updateUserById(req, res, next);
 });
 
-router.delete("/:userId", [
+router.delete("/:userId", verifyToken, [
     param("userId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'userId' is invalid")
@@ -47,7 +48,7 @@ router.delete("/:userId", [
     controller.deleteUserById(req, res, next);
 });
 
-router.post("/:userId/phones", [
+router.post("/:userId/phones", verifyToken, [
     param("userId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'userId' is invalid"),
@@ -65,7 +66,7 @@ router.post("/:userId/phones", [
     controller.connectPhone(req, res, next);
 });
 
-router.delete("/:userId/phones/:imei", [
+router.delete("/:userId/phones/:imei", verifyToken, [
     param("userId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'userId' is invalid"),
@@ -76,7 +77,7 @@ router.delete("/:userId/phones/:imei", [
     controller.disconnectPhone(req, res, next);
 });
 
-router.post("/:userId/floors", [
+router.post("/:userId/floors", verifyToken, [
     param("userId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'userId' is invalid"),
@@ -89,7 +90,7 @@ router.post("/:userId/floors", [
     controller.addFloor(req, res, next);
 });
 
-router.post("/:userId/scenes", [
+router.post("/:userId/scenes", verifyToken, [
     param("userId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'userId' is invalid"),
@@ -102,7 +103,7 @@ router.post("/:userId/scenes", [
     controller.addScene(req, res, next);
 });
 
-router.delete("/:userId/floors/:floorId", [
+router.delete("/:userId/floors/:floorId", verifyToken, [
     param("userId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'userId' is invalid"),
@@ -113,7 +114,7 @@ router.delete("/:userId/floors/:floorId", [
     controller.removeFloor(req, res, next);
 });
 
-router.delete("/:userId/floors/:sceneId", [
+router.delete("/:userId/floors/:sceneId", verifyToken, [
     param("userId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'userId' is invalid"),
@@ -124,7 +125,7 @@ router.delete("/:userId/floors/:sceneId", [
     controller.removeScene(req, res, next);
 });
 
-router.patch("/:userId/updatePassword", [
+router.patch("/:userId/updatePassword", verifyToken, [
     param("userId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'userId' is invalid"),

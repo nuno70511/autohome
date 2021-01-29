@@ -6,14 +6,14 @@ const validationResultHandler = require("../middleware/validationResultHandler")
 const router = express.Router();
 
 router.post("/signup", [
-    body("firstName")
+    body("givenName")
         .exists()
-        .withMessage("Missing required field 'firstName'")
+        .withMessage("Missing required field 'givenName'")
         .trim()
         .escape(),
-    body("lastName")
+    body("familyName")
         .exists()
-        .withMessage("Missing required field 'lastName'")
+        .withMessage("Missing required field 'familyName'")
         .trim()
         .escape(),
     body("email")
