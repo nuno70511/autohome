@@ -34,7 +34,7 @@ const deviceSchema = new mongoose.Schema({
         required: true,
         default: "B"
     },
-    maxPowerDraw: { type: Number, required: true, min: 0 }
+    maxPowerDraw: { type: Number, required: true, min: 0, default: 0 }
 }, {
     timestamps: true
 });
