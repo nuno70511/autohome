@@ -10,7 +10,7 @@ const conflictError = (resourceName, field) => {
     return {
         status: 409,
         title: `${capitalize(resourceName)} conflicts with an existing resource`,
-        detail: `Unique field '${lowercase(field)}' is already in use`
+        detail: `Unique field '${field}' is already in use`
     }
 }
 

@@ -119,7 +119,7 @@ router.delete("/:floorId/spaces/:spaceId", [
     controller.deleteSpaceById(req, res, next);
 });
 
-router.put("/:floorId/spaces/:spaceId/devices", [
+router.post("/:floorId/spaces/:spaceId/devices", [
     param("floorId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'floorId' is invalid"),
@@ -127,13 +127,15 @@ router.put("/:floorId/spaces/:spaceId/devices", [
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'spaceId' is invalid"),
     body("deviceId")
+        .exists()
+        .withMessage("Missing required field 'deviceId'")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Field 'deviceId' is invalid")
 ], validationResultHandler, (req, res, next) => {
     controller.addDeviceToSpace(req, res, next);
 });
 
-router.put("/:floorId/spaces/:spaceId/devices/:deviceId", [
+router.delete("/:floorId/spaces/:spaceId/devices/:deviceId", [
     param("floorId")
         .custom(id => id.match(/^[0-9a-fA-F]{24}$/))
         .withMessage("Param 'floorId' is invalid"),
