@@ -1,6 +1,9 @@
 const User = require("../models/user.model");
 const { authorizationError } = require("../util/errorObjects");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+
+const saltRounds = 10;
 
 const signup = async (req, res, next) => {
     try {
@@ -39,6 +42,7 @@ const signin = async (req, res, next) => {
         }
     }
     catch (err) {
+        console.log(err);
         next(err);
     }
 }
